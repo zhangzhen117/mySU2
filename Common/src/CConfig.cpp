@@ -2515,6 +2515,9 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Evaluate inverse design on the surface  */
   addBoolOption("INV_DESIGN_HEATFLUX", InvDesign_HeatFlux, false);
 
+  /* zhen: Evaluate inverse design on the surface  */
+  addBoolOption("INV_DESIGN_TEM", InvDesign_Tem, false);
+
   /*!\par CONFIG_CATEGORY: Unsupported options \ingroup Config*/
   /*--- Options that are experimental and not intended for general use ---*/
 

@@ -152,6 +152,10 @@ void CFVMFlowSolverBase<V, R>::Allocate(const CConfig& config) {
   Alloc2D(nMarker, nVertex, CPressure);
   Alloc2D(nMarker, nVertex, CPressureTarget);
 
+  /* zhen: for temperature inverse design*/
+  Alloc2D(nMarker, nVertex, Tem);
+  Alloc2D(nMarker, nVertex, TemTarget);
+
   /*--- Non dimensional aerodynamic coefficients ---*/
 
   InvCoeff.allocate(nMarker);
@@ -1877,6 +1881,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
         Pressure = nodes->GetPressure(iPoint);
 
         CPressure[iMarker][iVertex] = (Pressure - RefPressure) * factor * RefArea;
+        //zhen: for temperature inverse design
+        Tem[iMarker][iVertex] = nodes->GetTemperature(iPoint);
 
         /*--- Note that the pressure coefficient is computed at the
          halo cells (for visualization purposes), but not the forces ---*/

@@ -114,6 +114,7 @@ private:
   Viscous,                  /*!< \brief Flag to know if the code is solving a viscous problem. */
   EquivArea,                /*!< \brief Flag to know if the code is going to compute and plot the equivalent area. */
   Engine,                   /*!< \brief Flag to know if the code is going to compute a problem with engine. */
+  InvDesign_Tem,            /*!< \brief zhen: Flag to know if the code is going to compute and plot the inverse design. */
   InvDesign_Cp,             /*!< \brief Flag to know if the code is going to compute and plot the inverse design. */
   InvDesign_HeatFlux,       /*!< \brief Flag to know if the code is going to compute and plot the inverse design. */
   Wind_Gust,                /*!< \brief Flag to know if there is a wind gust. */
@@ -5138,6 +5139,9 @@ public:
    * \return <code>TRUE</code> or <code>FALSE</code>  depending if we are computing the equivalent area.
    */
   bool GetInvDesign_HeatFlux(void) const { return InvDesign_HeatFlux; }
+
+  //zhen: for temperature inverse design
+  bool GetInvDesign_Tem(void) const { return InvDesign_Tem; }
 
   /*!
    * \brief Get name of the input grid.

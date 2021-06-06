@@ -1477,6 +1477,7 @@ enum ENUM_OBJECTIVE {
   EFFICIENCY = 4,               /*!< \brief Efficiency objective function definition. */
   INVERSE_DESIGN_PRESSURE = 5,  /*!< \brief Pressure objective function definition (inverse design). */
   INVERSE_DESIGN_HEATFLUX = 6,  /*!< \brief Heat flux objective function definition (inverse design). */
+  INVERSE_DESIGN_TEM = 71,      /*!< \brief zhen: temperature objective function definition (inverse design). */
   TOTAL_HEATFLUX = 7,           /*!< \brief Total heat flux. */
   MAXIMUM_HEATFLUX = 8,         /*!< \brief Maximum heat flux. */
   AVG_TEMPERATURE = 70,         /*!< \brief Total averaged temperature. */
@@ -1528,6 +1529,7 @@ static const MapType<string, ENUM_OBJECTIVE> Objective_Map = {
   MakePair("EFFICIENCY", EFFICIENCY)
   MakePair("INVERSE_DESIGN_PRESSURE", INVERSE_DESIGN_PRESSURE)
   MakePair("INVERSE_DESIGN_HEATFLUX", INVERSE_DESIGN_HEATFLUX)
+  MakePair("INVERSE_DESIGN_TEM", INVERSE_DESIGN_TEM)//zhen add
   MakePair("MOMENT_X", MOMENT_X_COEFFICIENT)
   MakePair("MOMENT_Y", MOMENT_Y_COEFFICIENT)
   MakePair("MOMENT_Z", MOMENT_Z_COEFFICIENT)

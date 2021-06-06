@@ -131,6 +131,7 @@ class CFVMFlowSolverBase : public CSolver {
   su2double Total_ComboObj = 0.0;       /*!< \brief Total 'combo' objective for all monitored boundaries */
   su2double Total_Custom_ObjFunc = 0.0; /*!< \brief Total custom objective function for all the boundaries. */
   su2double Total_CpDiff = 0.0;         /*!< \brief Total Equivalent Area coefficient for all the boundaries. */
+  su2double Total_TemDiff = 0.0;        /*!< \brief zhen: for temperature inverse design  */
   su2double Total_HeatFluxDiff = 0.0;   /*!< \brief Total Equivalent Area coefficient for all the boundaries. */
   su2double Total_MassFlowRate = 0.0;   /*!< \brief Total Mass Flow Rate on monitored boundaries. */
   su2double Total_CNearFieldOF = 0.0;   /*!< \brief Total Near-Field Pressure coefficient for all the boundaries. */
@@ -156,6 +157,8 @@ class CFVMFlowSolverBase : public CSolver {
   vector<su2activematrix> HeatConjugateVar;     /*!< \brief CHT variables for each boundary and vertex. */
   vector<vector<su2double> > CPressure;         /*!< \brief Pressure coefficient for each boundary and vertex. */
   vector<vector<su2double> > CPressureTarget;   /*!< \brief Target Pressure coefficient for each boundary and vertex. */
+  vector<vector<su2double> > Tem;               /*!< \brief zhen: for temperature inverse design */
+  vector<vector<su2double> > TemTarget;         /*!< \brief zhen: for temperature inverse design. */
   vector<vector<su2double> > YPlus;             /*!< \brief Yplus for each boundary and vertex. */
 
   bool space_centered;       /*!< \brief True if space centered scheme used. */
@@ -2064,6 +2067,9 @@ class CFVMFlowSolverBase : public CSolver {
    */
   inline void SetTotal_HeatFluxDiff(su2double val_heat) final { Total_HeatFluxDiff = val_heat; }
 
+  //zhen: for temperature inverse design
+  inline void SetTotal_TemDiff(su2double val_tem) final { Total_TemDiff = val_tem; }
+
   /*!
    * \brief Set the value of the Near-Field pressure oefficient.
    * \param[in] val_cnearfieldpress - Value of the Near-Field pressure coefficient.
@@ -2095,6 +2101,9 @@ class CFVMFlowSolverBase : public CSolver {
    * \return Value of the Equivalent Area coefficient (inviscid + viscous contribution).
    */
   inline su2double GetTotal_HeatFluxDiff() const final { return Total_HeatFluxDiff; }
+
+  //zhen: for temperature inverse design
+  inline su2double GetTotal_TemDiff() const final { return Total_TemDiff; }
 
   /*!
    * \brief Set the value of the custom objective function.
@@ -2174,6 +2183,16 @@ class CFVMFlowSolverBase : public CSolver {
     CPressureTarget[val_marker][val_vertex] = val_pressure;
   }
 
+  //zhen: used for temperature inverse design
+  inline su2double GetTemTarget(unsigned short val_marker, unsigned long val_vertex) const final {
+    return TemTarget[val_marker][val_vertex];
+  }
+  inline su2double GetTem(unsigned short val_marker, unsigned long val_vertex) const final {
+    return Tem[val_marker][val_vertex];
+  }
+  inline void SetTemTarget(unsigned short val_marker, unsigned long val_vertex, su2double val_temperature) final {
+    TemTarget[val_marker][val_vertex] = val_temperature;
+  }
   /*!
    * \brief Value of the characteristic variables at the boundaries.
    * \param[in] val_marker - Surface marker where the coefficient is computed.

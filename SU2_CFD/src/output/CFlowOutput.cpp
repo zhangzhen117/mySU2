@@ -689,14 +689,6 @@ void CFlowOutput::SetAerodynamicCoefficients(CConfig *config, CSolver *flow_solv
   SetHistoryOutputValue("COMBO", flow_solver->GetTotal_ComboObj());
 }
 
-void CFlowOutput::SetRotatingFrameCoefficients(CConfig *config, CSolver *flow_solver) {
-
-  SetHistoryOutputValue("THRUST", flow_solver->GetTotal_CT());
-  SetHistoryOutputValue("TORQUE", flow_solver->GetTotal_CQ());
-  SetHistoryOutputValue("FIGURE_OF_MERIT", flow_solver->GetTotal_CMerit());
-}
-
-
 void CFlowOutput::Add_CpInverseDesignOutput(CConfig *config){
 
   AddHistoryOutput("INVERSE_DESIGN_PRESSURE", "Cp_Diff", ScreenOutputFormat::FIXED, "CP_DIFF", "Cp difference for inverse design");
@@ -821,6 +813,147 @@ void CFlowOutput::Set_CpInverseDesign(CSolver *solver, CGeometry *geometry, CCon
   solver->SetTotal_CpDiff(PressDiff);
 
   SetHistoryOutputValue("INVERSE_DESIGN_PRESSURE", PressDiff);
+
+}
+
+void CFlowOutput::SetRotatingFrameCoefficients(CConfig *config, CSolver *flow_solver) {
+
+  SetHistoryOutputValue("THRUST", flow_solver->GetTotal_CT());
+  SetHistoryOutputValue("TORQUE", flow_solver->GetTotal_CQ());
+  SetHistoryOutputValue("FIGURE_OF_MERIT", flow_solver->GetTotal_CMerit());
+}
+
+
+/*zhen: used for the temperature inverse design*/
+void CFlowOutput::Add_TemInverseDesignOutput(CConfig *config){
+
+  AddHistoryOutput("INVERSE_DESIGN_TEM", "Tem_Diff", ScreenOutputFormat::FIXED, "TEM_DIFF", "Temperature difference for inverse design");
+
+}
+
+void CFlowOutput::Set_TemInverseDesign(CSolver *solver, CGeometry *geometry, CConfig *config){
+
+  unsigned short iMarker, icommas, Boundary;
+  unsigned long iVertex, iPoint, (*Point2Vertex)[2], nPointLocal = 0, nPointGlobal = 0;
+  su2double XCoord, YCoord, ZCoord, Temperature = 0, Tem, TemTarget, *Normal = nullptr, Area, TemDiff = 0.0;
+  bool *PointInDomain;
+  string text_line, surfTem_filename;
+  ifstream Surface_file;
+
+  /*--- Prepare to read the surface pressure files (CSV) ---*/
+
+  surfTem_filename = config->GetUnsteady_FileName("TargetTem", (int)curTimeIter, ".dat");
+
+  /*--- Read the surface pressure file ---*/
+
+  string::size_type position;
+
+  Surface_file.open(surfTem_filename);
+
+  if (!(Surface_file.fail())) {
+
+    nPointLocal = geometry->GetnPoint();
+    SU2_MPI::Allreduce(&nPointLocal, &nPointGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+
+    Point2Vertex = new unsigned long[nPointGlobal][2];
+    PointInDomain = new bool[nPointGlobal];
+
+    for (iPoint = 0; iPoint < nPointGlobal; iPoint ++)
+      PointInDomain[iPoint] = false;
+
+    for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+      //Boundary   = config->GetMarker_All_KindBC(iMarker);
+      //zhen: The temperature inverse design is applied to the Ploted boundarys
+      Boundary = config->GetMarker_All_Plotting(iMarker);
+
+      //if ((Boundary == EULER_WALL             ) ||
+      //    (Boundary == HEAT_FLUX              ) ||
+      //    (Boundary == ISOTHERMAL             ) ||
+      //    (Boundary == NEARFIELD_BOUNDARY)) {
+      if (Boundary==1){
+        for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+
+          /*--- The Temperature file uses the global numbering ---*/
+
+          iPoint = geometry->nodes->GetGlobalIndex(geometry->vertex[iMarker][iVertex]->GetNode());
+
+          if (geometry->vertex[iMarker][iVertex]->GetNode() < geometry->GetnPointDomain()) {
+            Point2Vertex[iPoint][0] = iMarker;
+            Point2Vertex[iPoint][1] = iVertex;
+            PointInDomain[iPoint] = true;
+            solver->SetTemTarget(iMarker, iVertex, 0.0);
+          }
+
+        }
+      }
+    }
+
+    getline(Surface_file, text_line);
+
+    while (getline(Surface_file, text_line)) {
+      for (icommas = 0; icommas < 50; icommas++) {
+        position = text_line.find( ",", 0 );
+        if (position!=string::npos) text_line.erase (position,1);
+      }
+      stringstream  point_line(text_line);
+
+      if (geometry->GetnDim() == 2) point_line >> iPoint >> XCoord >> YCoord >> Temperature;
+      if (geometry->GetnDim() == 3) point_line >> iPoint >> XCoord >> YCoord >> ZCoord >> Temperature;
+
+      if (PointInDomain[iPoint]) {
+
+        /*--- Find the vertex for the Point and Marker ---*/
+
+        iMarker = Point2Vertex[iPoint][0];
+        iVertex = Point2Vertex[iPoint][1];
+
+        solver->SetTemTarget(iMarker, iVertex, Temperature);
+
+      }
+
+    }
+
+    Surface_file.close();
+
+    delete [] Point2Vertex;
+    delete [] PointInDomain;
+
+    /*--- Compute the Temperature difference ---*/
+
+    TemDiff = 0.0;
+    for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+      //Boundary   = config->GetMarker_All_KindBC(iMarker);
+      Boundary = config->GetMarker_All_Plotting(iMarker);
+
+      //if ((Boundary == EULER_WALL             ) ||
+      //    (Boundary == HEAT_FLUX              ) ||
+      //    (Boundary == ISOTHERMAL             ) ||
+      //    (Boundary == NEARFIELD_BOUNDARY)) {
+      if (Boundary==1){
+        for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+
+          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+
+          Tem = solver->GetTem(iMarker, iVertex);
+          TemTarget = solver->GetTemTarget(iMarker, iVertex);
+
+          Area = GeometryToolbox::Norm(nDim, Normal);
+
+          TemDiff += Area * (TemTarget - Tem) * (TemTarget - Tem);
+        }
+
+      }
+    }
+
+    su2double MyTemDiff = TemDiff;
+    SU2_MPI::Allreduce(&MyTemDiff, &TemDiff, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  }
+
+  /*--- Update the Temperature ---*/
+
+  solver->SetTotal_TemDiff(TemDiff);
+
+  SetHistoryOutputValue("INVERSE_DESIGN_TEM", TemDiff);
 
 }
 

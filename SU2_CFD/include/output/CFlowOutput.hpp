@@ -92,6 +92,12 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   void Set_CpInverseDesign(CSolver *solver, CGeometry *geometry, CConfig *config);
+  /*!
+   *zhen: used for the inverse design of temperature distribution
+   *mimic the Cp inverse design function
+   */
+  void Add_TemInverseDesignOutput(CConfig *config);
+  void Set_TemInverseDesign(CSolver *solver, CGeometry *geometry, CConfig *config);
 
   /*!
    * \brief Compute value of the Q criteration for vortex idenfitication

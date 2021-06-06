@@ -2421,6 +2421,7 @@ public:
    */
   inline virtual su2double GetTotal_HeatFluxDiff() const { return 0; }
 
+
   /*!
    * \brief A virtual member.
    * \return Value of the FEA coefficient (inviscid + viscous contribution).
@@ -2504,6 +2505,7 @@ public:
    * \param[in] val_pressure - Value of the difference between heat and the target heat.
    */
   inline virtual void SetTotal_HeatFluxDiff(su2double val_heat) { }
+
 
   /*!
    * \brief A virtual member.
@@ -2949,6 +2951,15 @@ public:
                                          unsigned long val_vertex,
                                          su2double val_pressure) { }
 
+  /*zhen: for temperature inverse design*/
+  inline virtual su2double GetTem(unsigned short val_marker, unsigned long val_vertex) const {return 0; }
+  inline virtual su2double GetTemTarget(unsigned short val_marker, unsigned long val_vertex) const { return 0; }
+  inline virtual su2double GetTotal_Tem() const { return 0; }
+  inline virtual su2double GetTotal_TemDiff() const { return 0; }
+  inline virtual void SetTotal_TemDiff(su2double val_tem) { }
+  inline virtual void SetTemTarget(unsigned short val_marker,
+                                         unsigned long val_vertex,
+                                         su2double val_temperature) { }
   /*!
    * \brief A virtual member.
    * \param[in] val_marker - Surface marker where the coefficient is computed.
