@@ -51,6 +51,7 @@ private:
   su2double Total_Sens_ModVel;   /*!< \brief Total sensitivity to inlet velocity (incompressible). */
   su2double Mach, Alpha, Beta, Pressure, Temperature, BPressure, ModVel;
   su2double TemperatureRad, Total_Sens_Temp_Rad;
+  su2double Prandtl_Turb, Total_Sens_Prt;      /*!< \brief zhen: for DV of turbulence Pr */
 
   su2double *Solution_Geometry; /*!< \brief Auxiliary vector for the geometry solution (dimension nDim instead of nVar). */
 
@@ -152,6 +153,10 @@ public:
    * \param[in] config - Definition of the particular problem.
    */
   void SetSensitivity(CGeometry *geometry, CConfig *config, CSolver*) override;
+
+  /*zhen: for DV of turbulence Pr*/
+  su2double GetPrandtl_Turb() override {return Prandtl_Turb;}
+  inline su2double GetTotal_Sens_Prt() const override { return Total_Sens_Prt; }
 
   /*!
    * \brief Provide the total shape sensitivity coefficient.

@@ -2960,6 +2960,11 @@ public:
   inline virtual void SetTemTarget(unsigned short val_marker,
                                          unsigned long val_vertex,
                                          su2double val_temperature) { }
+  /*zhen: for DV of turbulence Pr*/
+  inline virtual void SetPrandtl_Turb(su2double Prt) {}
+  inline virtual su2double GetPrandtl_Turb() {}
+  inline virtual su2double GetTotal_Sens_Prt() const { return 0; }
+
   /*!
    * \brief A virtual member.
    * \param[in] val_marker - Surface marker where the coefficient is computed.

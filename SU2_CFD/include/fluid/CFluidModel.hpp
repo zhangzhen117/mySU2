@@ -74,6 +74,9 @@ class CFluidModel {
  public:
   virtual ~CFluidModel() {}
 
+  //zhen: for DV of Prt
+  void SetPrandtl_Turb(su2double Prt) {ThermalConductivity->SetPrandtl_Turb(Prt);}
+
   /*!
    * \brief Get fluid pressure.
    */

@@ -273,6 +273,9 @@ public:
    */
   virtual ~CNumerics(void);
 
+  //zhen: for DV of Prt
+  inline void SetPrandtl_Turb(su2double Prt) {Prandtl_Turb = Prt;}
+
   /*!
    * \brief Set the time step.
    * \param[in] val_timestep - Value of the time step.

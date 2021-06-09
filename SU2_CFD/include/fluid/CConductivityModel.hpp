@@ -43,6 +43,9 @@ class CConductivityModel {
   void operator=(const CConductivityModel&) = delete;
   virtual ~CConductivityModel() {}
 
+  //zhen: for DV of Prt
+  virtual void SetPrandtl_Turb(su2double Prt) {}
+
   /*!
    * \brief return conductivity value.
    */

@@ -41,6 +41,9 @@ class CConstantPrandtlRANS final : public CConductivityModel {
    */
   CConstantPrandtlRANS(su2double pr_lam, su2double pr_turb) : pr_lam_(pr_lam), pr_turb_(pr_turb) {}
 
+  //zhen: for DV of Prt
+  void SetPrandtl_Turb(su2double Prt) {pr_turb_=Prt;}
+
   /*!
    * \brief return conductivity value.
    */

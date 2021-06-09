@@ -165,6 +165,9 @@ protected:
   void CommonPreprocessing(CGeometry *geometry, CSolver **solver_container, CConfig *config, unsigned short iMesh,
                            unsigned short iRKStep, unsigned short RunTime_EqSystem, bool Output);
 
+  /*zhen: for DV of turbulence Pr*/
+  inline void SetPrandtl_Turb(su2double Prt) override {Prandtl_Turb = Prt;}
+
   /*!
    * \brief Update the AoA and freestream velocity at the farfield.
    * \param[in] geometry - Geometrical definition of the problem.

@@ -382,6 +382,16 @@ void CDiscAdjSolver::RegisterVariables(CGeometry *geometry, CConfig *config, boo
   /*--- Here it is possible to register other variables as input that influence the flow solution
    * and thereby also the objective function. The adjoint values (i.e. the derivatives) can be
    * extracted in the ExtractAdjointVariables routine. ---*/
+  //zhen: for DV of turbulence Pr
+  if((config->GetKind_Regime() == COMPRESSIBLE) && (KindDirect_Solver == RUNTIME_FLOW_SYS && !config->GetBoolTurbomachinery())) {
+    Prandtl_Turb           = config->GetPrandtl_Turb();
+    if (!reset) {
+      AD::RegisterInput(Prandtl_Turb);
+    }
+
+    //config->SetPrandtl_Turb(Temperature);  //not sure whether to be added or not
+    direct_solver->SetPrandtl_Turb(Prandtl_Turb);
+  }
 }
 
 void CDiscAdjSolver::RegisterOutput(CGeometry *geometry, CConfig *config) {
@@ -530,6 +540,14 @@ void CDiscAdjSolver::ExtractAdjoint_Variables(CGeometry *geometry, CConfig *conf
 
   /*--- Extract here the adjoint values of everything else that is registered as input in RegisterInput. ---*/
 
+  //zhen: for DV of turbulence Prt
+  if ((config->GetKind_Regime() == COMPRESSIBLE) && (KindDirect_Solver == RUNTIME_FLOW_SYS) && !config->GetBoolTurbomachinery()) {
+    su2double Local_Sens_Prt;
+
+    Local_Sens_Prt  = SU2_TYPE::GetDerivative(Prandtl_Turb);
+
+    SU2_MPI::Allreduce(&Local_Sens_Prt, &Total_Sens_Prt, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  }
 }
 
 

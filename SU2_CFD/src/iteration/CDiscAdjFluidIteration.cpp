@@ -503,6 +503,17 @@ void CDiscAdjFluidIteration::SetDependencies(CSolver***** solver, CGeometry**** 
     solver[iZone][iInst][MESH_0][RAD_SOL]->InitiateComms(geometry[iZone][iInst][MESH_0], config[iZone], SOLUTION);
     solver[iZone][iInst][MESH_0][RAD_SOL]->CompleteComms(geometry[iZone][iInst][MESH_0], config[iZone], SOLUTION);
   }
+  /*zhen: for DV of Prt*/
+  cout<<"zhen: set the Prt from adjoint solver to fluid model"<<endl;
+  solver[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetFluidModel()->SetPrandtl_Turb(solver[ZONE_0][INST_0][MESH_0][ADJFLOW_SOL]->GetPrandtl_Turb());
+  cout<<"zhen: set the Prt from adjoint solver to numerics"<<endl;
+  for (int iSol=0;iSol<MAX_SOLS;iSol++){
+    for (int thread=0;thread<MAX_TERMS;thread++){
+      if (numerics[iZone][iInst][MESH_0][iSol][thread]!=nullptr){
+        numerics[iZone][iInst][MESH_0][iSol][thread]->SetPrandtl_Turb(solver[ZONE_0][INST_0][MESH_0][ADJFLOW_SOL]->GetPrandtl_Turb());
+      }
+    }
+  }
 }
 
 void CDiscAdjFluidIteration::RegisterOutput(CSolver***** solver, CGeometry**** geometry, CConfig** config,
